@@ -8,6 +8,9 @@ flask = "*"
 dotenv = "*"
 sqlalchemy = "*"
 alembic = "*"
+flask-login = "*"
+flask-migrate = "*"
+flask-wtk = "*"
 
 [dev-packages]
 
