@@ -11,3 +11,13 @@ def index():
       endpoint="hello-endpoint")
 def hello():
     return "Hello, World!"
+
+@app.route("/hi", methods=["GET", "POST"])
+def hi():
+    return "Hi,World!"
+
+@app.route("/beautiful/<fomosa>",
+    methods=["GET", "POST"],
+    endpoint="beautiful-endpoint")
+def beautiful(fomosa):
+    return f"beautiful, {fomosa}!"
