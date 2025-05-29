@@ -1,5 +1,18 @@
 #匯入flask,建立flask實體
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, current_app, g, request, redirect
+
+#5/29確認請求內文
+with app.test_request_context("/users?updated=true"):
+    print(request.args.get("updated"))
+
+#5/29獲取應用程式內文並加入堆疊
+ctx = app.app_context()
+ctx.push()
+
+print(current_app.name)
+
+g.connection = "connection"
+print(g.connection)
 
 app = Flask(__name__)
 
