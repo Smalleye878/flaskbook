@@ -1,5 +1,19 @@
 #匯入flask,建立flask實體
-from flask import Flask, render_template, url_for, current_app, g, request, redirect
+from email_validator import validate_email, EmailNotValidError
+from flask import(
+    Flask,
+    current_app,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    flash,
+)
+    
+
+app = Flask(__name__)
+app.config["SECRET_KEY"]="@AZSMss3p5QPbcY2hBsJ"
 
 #5/29確認請求內文
 with app.test_request_context("/users?updated=true"):
@@ -13,8 +27,6 @@ print(current_app.name)
 
 g.connection = "connection"
 print(g.connection)
-
-app = Flask(__name__)
 
 #5/19配對網址和執行的函數
 @app.route("/")
@@ -51,3 +63,44 @@ with app.test_request_context():
     print(url_for("index"))
     print(url_for("hello-endpoint", name="world"))
     print(url_for("show_name", Name="fomosa", page="1"))#執行出來會是/name/fomosa?page=1，而?後面屬於額外資料
+
+#5/30
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.route("/contact/complete", methods=["GET", "POST"])
+def contact_complete():
+    if request.method == "POST":
+        username = request.form["username"]
+        email = request.form["email"]
+        description = request.form["description"]
+        is_valid = True
+
+        if not username:
+            flash("必須填寫使用者名稱")
+            is_valid = False
+
+        if not email:
+            flash("必須填寫郵件位址")
+            is_valid = False
+        
+        try:
+            validate_email(email)
+        except EmailNotValidError:
+            flash("請輸入正確格式")
+            is_valid = False
+        
+        if not description:
+            flash("必須填寫諮詢內容")
+            is_valid = False
+
+        if not is_valid:
+            return redirect(url_for("contact"))
+        
+        flash("諮詢內容已傳送。感謝您來信諮詢。")
+        
+        return redirect(url_for("contact_complete"))
+    
+    return render_template("contact_complete.html")
+
