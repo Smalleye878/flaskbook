@@ -13,6 +13,8 @@ from flask import(
     request,
     url_for,
     flash,
+    make_response,
+    session,
 )
 
     
@@ -86,7 +88,13 @@ with app.test_request_context():
 #5/30
 @app.route("/contact")
 def contact():
-    return render_template("contact.html")
+    response = make_response(render_template("contact.html"))
+
+    response.set_cookie("flaskbook key", "flaskbook value")
+
+    session["username"] = "fomosa"
+
+    return response
 
 @app.route("/contact/complete", methods=["GET", "POST"])
 def contact_complete():
