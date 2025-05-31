@@ -1,4 +1,8 @@
 #匯入flask,建立flask實體
+import logging
+import os
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_mail import Mail, Message
 from email_validator import validate_email, EmailNotValidError
 from flask import(
     Flask,
@@ -10,10 +14,24 @@ from flask import(
     url_for,
     flash,
 )
+
     
 
 app = Flask(__name__)
 app.config["SECRET_KEY"]="@AZSMss3p5QPbcY2hBsJ"
+#不確定67頁上面是否要打進去
+app.logger.setLevel(logging.DEBUG)
+app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
+toolbar = DebugToolbarExtension(app)
+#5/31增加Mail類別組態
+app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
+app.config["MAIL_PORT"] = os.environ.get("MAIL_PORT")
+app.config["MAIL_USE_TLS"] = os.environ.get("MAIL_USE_TLS")
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+
+mail = Mail(app)
 
 #5/29確認請求內文
 with app.test_request_context("/users?updated=true"):
@@ -27,6 +45,7 @@ print(current_app.name)
 
 g.connection = "connection"
 print(g.connection)
+
 
 #5/19配對網址和執行的函數
 @app.route("/")
@@ -98,9 +117,25 @@ def contact_complete():
         if not is_valid:
             return redirect(url_for("contact"))
         
+
+        send_email(
+            email,
+            "感謝您來信諮詢。",
+            "contact_mail",
+            username=username,
+            description=description,
+        )
+
+        
         flash("諮詢內容已傳送。感謝您來信諮詢。")
         
         return redirect(url_for("contact_complete"))
     
     return render_template("contact_complete.html")
+
+def send_email(to, subject, template, **kwargs):
+    msg = Message(subject, recipients=[to])
+    msg.body = render_template(template + ".txt", **kwargs)
+    msg.html = render_template(template + ".html", **kwargs)
+    mail.send(msg)
 
