@@ -1,7 +1,9 @@
+#6/1
+from apps.crud.forms import UserForm
 from apps.app import db
 from apps.crud.models import User
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for
 
 crud = Blueprint(
     "crud",
@@ -19,3 +21,22 @@ def index():
 def sql():
     db.session.query(User).all()
     return "請確認控制台日誌"
+
+@crud.route("/users/new", methods=["GET", "POST"])
+def create_user():
+    form = UserForm()
+    if form.validate_on_submit():
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            password=form.password.data,
+        )
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for("crud.users"))
+    return render_template("crud/create.html", form=form)
+
+@crud.route("/users")
+def users():
+    users = User.query.all()
+    return render_template("crud/index.html", users=users)
