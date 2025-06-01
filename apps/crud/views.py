@@ -1,4 +1,6 @@
 #6/1
+from flask import flash  #gpt幫忙新增這行
+from sqlalchemy.exc import IntegrityError  #gpt幫忙新增這行
 from apps.crud.forms import UserForm
 from apps.app import db
 from apps.crud.models import User
@@ -22,6 +24,9 @@ def sql():
     db.session.query(User).all()
     return "請確認控制台日誌"
 
+from flask import flash  # ← 新增這行
+from sqlalchemy.exc import IntegrityError  # ← 新增這行
+
 @crud.route("/users/new", methods=["GET", "POST"])
 def create_user():
     form = UserForm()
@@ -29,12 +34,17 @@ def create_user():
         user = User(
             username=form.username.data,
             email=form.email.data,
-            password=form.password.data,
+            password_hash=form.password.data,
         )
         db.session.add(user)
-        db.session.commit()
-        return redirect(url_for("crud.users"))
+        try:
+            db.session.commit()
+            return redirect(url_for("crud.users"))
+        except IntegrityError:
+            db.session.rollback()
+            flash("這個 Email 已經被使用過了，請換一個。", "danger")  #gpt幫忙增加功能:顯示錯誤訊息
     return render_template("crud/create.html", form=form)
+
 
 @crud.route("/users")
 def users():
