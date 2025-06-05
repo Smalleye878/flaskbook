@@ -28,3 +28,6 @@ def create_app():
 
     app.register_blueprint(crud_views.crud, url_prefix="/crud")
     return app
+
+
+print(123)
