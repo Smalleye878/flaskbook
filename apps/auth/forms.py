@@ -21,3 +21,15 @@ class SignUpForm(FlaskForm):
     password = PasswordField("密碼",
         validators=[DataRequired("必須填寫密碼。")])
     submit = SubmitField("提交表單")
+
+
+class LoginForm(FlaskForm):
+    email = StringField(
+        "郵件位址",
+        validators=[
+            DataRequired("必須填寫郵件位址。"),
+            Email("請依照電子郵件格式輸入。"),
+        ],
+    )
+    password = PasswordField("密碼", validators=[DataRequired("必須填寫密碼。")])
+    submit = SubmitField("登入")
